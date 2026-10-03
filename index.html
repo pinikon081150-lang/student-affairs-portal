@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ระบบกลุ่มบริหารกิจการนักเรียน | โรงเรียนสมเด็จพิทยาคม</title>
+    <meta
+      name="description"
+      content="ระบบศูนย์กลางบริการงานกิจการนักเรียน โรงเรียนสมเด็จพิทยาคม"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: '#eef6ff',
+                100: '#dfeeff',
+                200: '#bfdcff',
+                300: '#8ec1ff',
+                400: '#5ca3ff',
+                500: '#2e7de9',
+                600: '#1f64c8',
+                700: '#1b4fa0',
+                800: '#1a3d7d',
+                900: '#173567'
+              },
+              navy: '#0d2d5c',
+              slategold: '#c7a96a'
+            },
+            boxShadow: {
+              soft: '0 10px 30px rgba(15, 34, 70, 0.12)',
+              panel: '0 18px 35px rgba(13, 45, 92, 0.10)',
+              inset: 'inset 0 1px 0 rgba(255,255,255,0.35)'
+            },
+            borderRadius: {
+              xl2: '1.25rem'
+            }
+          }
+        }
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwUEQp1W4Sq8+M6Q5rLpt7mCjY+i0D3rD4jQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      :root {
+        --bg: #f3f7fb;
+        --panel: #ffffff;
+        --panel-soft: #edf4ff;
+        --text: #18345a;
+        --muted: #697a90;
+        --border: rgba(13, 45, 92, 0.12);
+        --header: linear-gradient(135deg, #0d2d5c 0%, #1b4fa0 60%, #2d6fe1 100%);
+        --card-hover: translateY(-4px);
+        --shadow: 0 12px 30px rgba(13, 45, 92, 0.12);
+      }
+
+      body.dark {
+        --bg: #0b1629;
+        --panel: #12233d;
+        --panel-soft: #172b46;
+        --text: #eaf2ff;
+        --muted: #a4b6d2;
+        --border: rgba(151, 171, 200, 0.18);
+        --header: linear-gradient(135deg, #071827 0%, #0f2d4b 50%, #123d69 100%);
+        --shadow: 0 18px 38px rgba(2, 8, 18, 0.48);
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: 'Noto Sans Thai', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      .soft-bg {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(8px);
+      }
+
+      .card-ui {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      }
+
+      .card-ui:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 35px rgba(16, 54, 101, 0.16);
+        border-color: rgba(36, 104, 202, 0.35);
+      }
+
+      .navy-border {
+        border-color: rgba(13, 45, 92, 0.12);
+      }
+
+      .feature-btn,
+      .system-btn,
+      .toggle-theme {
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      }
+
+      .feature-btn:active,
+      .system-btn:active,
+      .toggle-theme:active,
+      .menu-card:active {
+        transform: scale(0.98);
+      }
+
+      .loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 22, 41, 0.35);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.4s ease;
+      }
+
+      .loading-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .loader {
+        width: 56px;
+        height: 56px;
+        border: 4px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #f8d36a;
+        border-radius: 9999px;
+        animation: spin 0.9s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .search-input {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+        color: white;
+      }
+
+      .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .page-shell {
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 768px) {
+        .header-title {
+          font-size: 1.5rem;
+        }
+
+        .subhead {
+          font-size: 0.95rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loader" aria-label="loading"></div>
+    </div>
+
+    <div class="page-shell">
+      <header class="relative overflow-hidden rounded-b-[32px] text-white" style="background: var(--header);">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.2),_transparent_35%)]"></div>
+        <div class="relative px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shadow-soft">
+                <i class="fa-solid fa-school text-xl sm:text-2xl text-[#f8d36a]"></i>
+              </div>
+              <div>
+                <p class="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-blue-100/80">School Administration</p>
+                <h1 class="header-title text-lg sm:text-2xl lg:text-3xl font-extrabold leading-tight">
+                  กลุ่มบริหารกิจการนักเรียน
+                </h1>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="toggle-theme hidden sm:flex items-center justify-center w-11 h-11 rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition-all"
+              id="themeToggle"
+              aria-label="Toggle Dark Mode"
+            >
+              <i class="fa-solid fa-moon text-lg"></i>
+            </button>
+          </div>
+
+          <div class="mt-5 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+            <div class="max-w-3xl">
+              <div class="flex items-center gap-2 text-blue-100 font-medium">
+                <i class="fa-solid fa-shield-heart text-sm"></i>
+                <span class="text-xs sm:text-sm">โรงเรียนสมเด็จพิทยาคม</span>
+              </div>
+              <h2 class="mt-3 text-2xl sm:text-3xl lg:text-4xl font-black leading-tight">
+                ระบบศูนย์กลางบริการงานกิจการนักเรียน
+              </h2>
+              <p class="subhead mt-2 text-sm sm:text-base text-blue-100/90">
+                ศูนย์รวมระบบสารสนเทศสำหรับการบริหารจัดการงานกิจการนักเรียนและการดูแลนักเรียนอย่างมีประสิทธิภาพ
+              </p>
+            </div>
+
+            <div class="rounded-2xl border border-white/20 bg-white/10 p-3 w-full max-w-[290px] shadow-soft">
+              <div class="flex items-center justify-between text-[11px] text-blue-100/80">
+                <span>วันที่และเวลา</span>
+                <i class="fa-regular fa-clock"></i>
+              </div>
+              <div id="datetimeDisplay" class="mt-2 text-sm sm:text-base font-semibold leading-relaxed text-white"></div>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <label for="menuSearch" class="sr-only">ค้นหาระบบ</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-4 flex items-center text-blue-100">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </span>
+              <input
+                id="menuSearch"
+                type="search"
+                placeholder="ค้นหาระบบหรือบริการ…"
+                class="search-input w-full rounded-2xl py-3.5 pl-12 pr-4 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-slategold/80"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <section class="card-ui rounded-[28px] p-4 sm:p-6 lg:p-8 mb-8" aria-label="ระบบงานสำคัญ">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <div class="inline-flex items-center gap-2 rounded-full bg-primary-50 text-primary-700 px-3 py-1 text-xs font-semibold border border-primary-200">
+                <i class="fa-solid fa-star"></i>
+                ระบบงานสำคัญ
+              </div>
+              <h3 class="mt-3 text-xl sm:text-2xl lg:text-3xl font-extrabold">
+                ระบบงานกิจการนักเรียน
+              </h3>
+            </div>
+            <div class="text-sm text-[color:var(--muted)] max-w-2xl">
+              ศูนย์รวมระบบสารสนเทศสำหรับการบริหารจัดการงานกิจการนักเรียน โรงเรียนสมเด��จพิทยาคม
+            </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+            <button class="feature-btn system-btn bg-primary-50 border border-primary-200 text-primary-700 hover:bg-primary-100 rounded-2xl px-4 py-3 text-sm font-semibold" data-target="ระบบทะเบียนข้อมูลนักเรียน">
+              <i class="fa-solid fa-database mr-2"></i>ข้อมูลนักเรียน
+            </button>
+            <button class="feature-btn system-btn bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100 rounded-2xl px-4 py-3 text-sm font-semibold" data-target="ระบบตัดคะแนนความประพฤตินักเรียน">
+              <i class="fa-solid fa-clipboard-check mr-2"></i>คะแนนความประพฤติ
+            </button>
+            <button class="feature-btn system-btn bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 rounded-2xl px-4 py-3 text-sm font-semibold" data-target="ระบบตรวจสอบคะแนนความประพฤตินักเรียน">
+              <i class="fa-solid fa-user-check mr-2"></i>ตรวจสอบคะแนน
+            </button>
+            <button class="feature-btn system-btn bg-sky-50 border border-sky-200 text-sky-700 hover:bg-sky-100 rounded-2xl px-4 py-3 text-sm font-semibold" data-target="ระบบเช็คแถว">
+              <i class="fa-solid fa-people-roof mr-2"></i>เช็คแถว
+            </button>
+          </div>
+        </section>
+
+        <section class="mb-8">
+          <div class="flex items-center justify-between gap-3 mb-4">
+            <h3 class="text-xl sm:text-2xl font-extrabold">เมนูบริการงานกิจการนักเรียน</h3>
+            <div class="text-xs text-[color:var(--muted)]">
+              <span id="resultCount">0</span> ระบบ
+            </div>
+          </div>
+
+          <div id="menuGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5" aria-live="polite"></div>
+        </section>
+
+        <section class="card-ui rounded-[28px] p-4 sm:p-6 mb-8">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-500 text-white flex items-center justify-center shadow-soft">
+              <i class="fa-solid fa-bullhorn"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-extrabold">ช่องทางประชาสัมพันธ์</h3>
+              <p class="text-sm text-[color:var(--muted)]">ติดตามข่าวสารและกิจกรรมของนักเรียน</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="https://www.facebook.com/share/1CXUyoX7Br/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" class="rounded-2xl border border-[#dfeafc] bg-[#f5f9ff] p-4 hover:shadow-soft transition-shadow">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-[#1d4ed8] text-white flex items-center justify-center">
+                  <i class="fa-brands fa-facebook-f"></i>
+                </div>
+                <div>
+                  <div class="font-bold text-primary-700">สารวัตรนักเรียน</div>
+                  <div class="text-xs text-[color:var(--muted)]">ข่าวสารและกิจกรรม</div>
+                </div>
+              </div>
+            </a>
+
+            <a href="https://www.facebook.com/100057390881400/" target="_blank" rel="noopener noreferrer" class="rounded-2xl border border-[#dfeafc] bg-[#f5f9ff] p-4 hover:shadow-soft transition-shadow">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-[#1d4ed8] text-white flex items-center justify-center">
+                  <i class="fa-brands fa-facebook-f"></i>
+                </div>
+                <div>
+                  <div class="font-bold text-primary-700">สภานักเรียน</div>
+                  <div class="text-xs text-[color:var(--muted)]">กิจกรรมและประชาสัมพันธ์</div>
+                </div>
+              </div>
+            </a>
+
+            <a href="https://www.facebook.com/61555868034545/" target="_blank" rel="noopener noreferrer" class="rounded-2xl border border-[#dfeafc] bg-[#f5f9ff] p-4 hover:shadow-soft transition-shadow">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-[#1d4ed8] text-white flex items-center justify-center">
+                  <i class="fa-brands fa-facebook-f"></i>
+                </div>
+                <div>
+                  <div class="font-bold text-primary-700">To Be Number One</div>
+                  <div class="text-xs text-[color:var(--muted)]">กิจกรรมและข่าวสาร</div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </section>
+      </main>
+
+      <footer class="mt-6 border-t border-[color:var(--border)] bg-[color:var(--panel)]">
+        <div class="page-shell px-4 sm:px-6 lg:px-8 py-8">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+            <div>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-primary-700 text-white flex items-center justify-center shadow-soft">
+                  <i class="fa-solid fa-school"></i>
+                </div>
+                <div>
+                  <div class="font-extrabold text-lg">กลุ่มบริหารกิจการนักเรียน</div>
+                  <div class="text-sm text-[color:var(--muted)]">โรงเรียนสมเด็จพิทยาคม</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-2 text-sm text-[color:var(--muted)]">
+              <div><i class="fa-solid fa-phone mr-2 text-primary-600"></i>โทรศัพท์: 086-456-3105</div>
+              <div><i class="fa-solid fa-envelope mr-2 text-primary-600"></i>E-Mail: salawat.spk@somdetpit.ac.th</div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-[color:var(--border)] text-center text-[10px] text-slate-400 opacity-75">
+            พัฒนาการแอพโดย PINIKON 2026
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      const menus = [
+        {
+          title: 'ระบบทะเบียนข้อมูลนักเรียน',
+          description: 'ระบบสำหรับจัดการและตรวจสอบข้อมูลทะเบียนนักเรียน',
+          url: 'https://script.google.com/macros/s/AKfycbyrWba5qL-qtvrCu5R81Fpg7OoHryq9al5TPCTIcBS3mnTqQ_7Iv68SLNvCDnQo47zY/exec',
+          icon: 'fa-solid fa-database',
+          accent: 'bg-primary-50 text-primary-700 border-primary-200'
+        },
+        {
+          title: 'ระบบตัดคะแนนความประพฤตินักเรียน',
+          description: 'ระบบบันทึกและจัดการข้อมูลการกระทำผิดและคะแนนความประพฤติของนักเรียน',
+          url: 'https://from-inim.onrender.com/?fbclid=IwY2xjawMbx8JleHRuA2FlbQIxMQABHjfUfC5ZX7rp6bUEKI2ljhg1PLfM6EOQ90-RNV4UNFlblX6Met4f_3zJe0Ty_aem_379ECN1h_J84OvEsMvqMow',
+          icon: 'fa-solid fa-clipboard-list',
+          accent: 'bg-amber-50 text-amber-700 border-amber-200'
+        },
+        {
+          title: 'ระบบตรวจสอบคะแนนความประพฤตินักเรียน',
+          description: 'ตรวจสอบข้อมูลคะแนนความประพฤติและประวัติด้านวินัยของนักเรียน',
+          url: 'https://from-inim.onrender.com/student-portal.html',
+          icon: 'fa-solid fa-magnifying-glass',
+          accent: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+        },
+        {
+          title: 'ระบบเช็คแถว',
+          description: 'ระบบตรวจสอบและบันทึกการเข้าแถวของนักเรียน',
+          url: 'https://admission-salawat.my.canva.site/salawat',
+          icon: 'fa-solid fa-users',
+          accent: 'bg-sky-50 text-sky-700 border-sky-200'
+        },
+        {
+          title: 'เพจ Facebook สารวัตรนักเรียน',
+          description: 'ประชาสัมพันธ์ข่าวสารและกิจกรรมของสารวัตรนักเรียน',
+          url: 'https://www.facebook.com/share/1CXUyoX7Br/?mibextid=wwXIfr',
+          icon: 'fa-brands fa-facebook',
+          accent: 'bg-indigo-50 text-indigo-700 border-indigo-200'
+        },
+        {
+          title: 'เพจ Facebook สภานักเรียน',
+          description: 'ข่าวสาร กิจกรรม และประชาสัมพันธ์งานสภานักเรียน',
+          url: 'https://www.facebook.com/100057390881400/',
+          icon: 'fa-brands fa-facebook',
+          accent: 'bg-violet-50 text-violet-700 border-violet-200'
+        },
+        {
+          title: 'เพจ Facebook To Be Number One',
+          description: 'ประชาสัมพันธ์กิจกรรมและข่าวสาร To Be Number One',
+          url: 'https://www.facebook.com/61555868034545/',
+          icon: 'fa-solid fa-heart',
+          accent: 'bg-rose-50 text-rose-700 border-rose-200'
+        }
+      ];
+
+      const menuGrid = document.getElementById('menuGrid');
+      const menuSearch = document.getElementById('menuSearch');
+      const resultCount = document.getElementById('resultCount');
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      const themeToggle = document.getElementById('themeToggle');
+      const datetimeDisplay = document.getElementById('datetimeDisplay');
+
+      function formatThaiDateTime() {
+        const now = new Date();
+        const thaiDays = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+        const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+
+        const dayName = thaiDays[now.getDay()];
+        const date = now.getDate();
+        const month = thaiMonths[now.getMonth()];
+        const year = now.getFullYear() + 543;
+        const hours = String(now.getHours()).padStart(2, '0');
+        const mins = String(now.getMinutes()).padStart(2, '0');
+        const secs = String(now.getSeconds()).padStart(2, '0');
+
+        const formattedDate = `${dayName}ที่ ${date} ${month} ${year}`;
+        const formattedTime = `เวลา ${hours}:${mins}:${secs} น.`;
+
+        datetimeDisplay.innerHTML = `${formattedDate}<br>${formattedTime}`;
+      }
+
+      function renderMenus(list) {
+        if (!list.length) {
+          menuGrid.innerHTML = `
+            <div class="col-span-full">
+              <div class="card-ui rounded-3xl p-8 text-center">
+                <i class="fa-solid fa-circle-exclamation text-3xl text-primary-500 mb-3"></i>
+                <p class="text-lg font-semibold">ไม่พบเมนูที่ตรงกับการค้นหา</p>
+                <p class="text-sm text-[color:var(--muted)] mt-2">กรุณาลองค้นหาด้วยคำอื่น เช่น “คะแนน” หรือ “นักเรียน”</p>
+              </div>
+            </div>
+          `;
+          resultCount.textContent = '0';
+          return;
+        }
+
+        menuGrid.innerHTML = list
+          .map((menu, index) => `
+            <article class="menu-card card-ui rounded-[28px] p-4 sm:p-5 flex flex-col gap-4 cursor-pointer" data-url="${menu.url}" data-title="${menu.title}">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-12 h-12 rounded-2xl ${menu.accent} border flex items-center justify-center shrink-0">
+                    <i class="${menu.icon} text-lg"></i>
+                  </div>
+                  <div class="text-[11px] font-semibold text-[color:var(--muted)] uppercase tracking-[0.18em]">เมนูที่ ${index + 1}</div>
+                </div>
+                <div class="w-9 h-9 rounded-full bg-primary-50 text-primary-700 flex items-center justify-center border border-primary-200">
+                  <i class="fa-solid fa-arrow-right"></i>
+                </div>
+              </div>
+
+              <div class="space-y-2 flex-1">
+                <h4 class="text-lg font-extrabold leading-snug">${menu.title}</h4>
+                <p class="text-sm text-[color:var(--muted)] leading-relaxed">${menu.description}</p>
+              </div>
+
+              <button
+                type="button"
+                class="system-btn w-full rounded-2xl bg-primary-700 hover:bg-primary-600 text-white font-semibold py-3 px-4 flex items-center justify-center gap-2 shadow-soft"
+                data-url="${menu.url}"
+                aria-label="เข้าสู่ระบบ ${menu.title}"
+              >
+                <span>เข้าสู่ระบบ</span>
+                <i class="fa-solid fa-chevron-right text-sm"></i>
+              </button>
+            </article>
+          `)
+          .join('');
+
+        resultCount.textContent = String(list.length);
+
+        menuGrid.querySelectorAll('.menu-card').forEach((card) => {
+          card.addEventListener('click', (event) => {
+            if (event.target.closest('button')) return;
+            const url = card.dataset.url;
+            if (url) {
+              window.open(url, '_blank', 'noopener,noreferrer');
+            }
+          });
+        });
+
+        menuGrid.querySelectorAll('.system-btn').forEach((button) => {
+          button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const url = button.dataset.url;
+            if (url) {
+              window.open(url, '_blank', 'noopener,noreferrer');
+            }
+          });
+        });
+      }
+
+      function filterMenus() {
+        const keyword = menuSearch.value.trim().toLowerCase();
+
+        if (!keyword) {
+          renderMenus(menus);
+          return;
+        }
+
+        const filtered = menus.filter((menu) => {
+          const target = `${menu.title} ${menu.description}`.toLowerCase();
+          return target.includes(keyword);
+        });
+
+        renderMenus(filtered);
+      }
+
+      function initTheme() {
+        const savedTheme = localStorage.getItem('studentAffairsTheme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        const isDark = savedTheme ? savedTheme === 'dark' : prefersDark;
+
+        if (isDark) {
+          document.body.classList.add('dark');
+          themeToggle.innerHTML = '<i class="fa-solid fa-sun text-lg"></i>';
+        } else {
+          themeToggle.innerHTML = '<i class="fa-solid fa-moon text-lg"></i>';
+        }
+      }
+
+      themeToggle.addEventListener('click', () => {
+        const isDark = document.body.classList.toggle('dark');
+        localStorage.setItem('studentAffairsTheme', isDark ? 'dark' : 'light');
+        themeToggle.innerHTML = isDark ? '<i class="fa-solid fa-sun text-lg"></i>' : '<i class="fa-solid fa-moon text-lg"></i>';
+      });
+
+      menuSearch.addEventListener('input', filterMenus);
+
+      document.querySelectorAll('.system-btn[data-target]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const target = button.dataset.target;
+          menuSearch.value = target;
+          filterMenus();
+          const card = [...document.querySelectorAll('.menu-card')].find((item) => item.dataset.title === target);
+          if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
+      });
+
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          loadingOverlay.classList.add('hidden');
+        }, 500);
+      });
+
+      formatThaiDateTime();
+      setInterval(formatThaiDateTime, 1000);
+      initTheme();
+      renderMenus(menus);
+    </script>
+  </body>
+</html>
